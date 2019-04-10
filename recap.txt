@@ -1,0 +1,188 @@
+var tWait = 600;
+function verifyClick() {
+	var targetNode = document.querySelector("HTML>BODY>DIV>DIV>DIV:nth-of-type(3)>DIV:nth-of-type(2)>DIV>DIV:nth-of-type(2)>button");
+	if (targetNode) {
+		//--- Simulate a natural mouse-click sequence.
+		triggerMouseEvent(targetNode, "mouseover");
+		triggerMouseEvent(targetNode, "mousedown");
+		triggerMouseEvent(targetNode, "mouseup");
+		triggerMouseEvent(targetNode, "click");
+	}
+	function triggerMouseEvent(node, eventType) {
+		var ev = document.createEvent('MouseEvents');
+		ev.initEvent(eventType, true, true);
+		node.dispatchEvent(ev);
+	}
+}
+function canvasAutoClick() {
+	setTimeout( function () {
+		var isdown;
+		var prevX;
+		var prevY;
+		$(".rc-canvas-canvas").bind("mouseenter mousedown mouseup mouseover mouseout mousemove", function (m) {
+			if (m.type == "mousedown" && m.button == 0) {
+				isdown = 1;
+				prevX = m.pageX;
+				prevY = m.pageY;
+
+				var ev = document.createEvent("MouseEvent");
+				var el = document.elementFromPoint(m.pageX,m.pageY);
+				ev.initMouseEvent(
+				"click",
+				true /* bubble */, true /* cancelable */,
+				window, null,
+				m.pageX, m.pageY, m.pageX, m.pageY, /* coordinates */
+				false, false, false, false, /* modifier keys */
+				0 /*left*/, null
+				);
+				el.dispatchEvent(ev);
+			}
+			if (m.type == "mouseup" && m.button == 0) {
+				isdown = 0;
+			}
+			if (m.type == "mousemove" && m.button == 0 && isdown == 1) {
+				if ((prevX - m.pageX) > 5 || (m.pageX - prevX) > 5 || (prevY - m.pageY) > 5 || (m.pageY - prevY) > 5) {
+					prevX = m.pageX;
+					prevY = m.pageY;
+					var ev = document.createEvent("MouseEvent");
+					var el = document.elementFromPoint(m.pageX,m.pageY);
+					ev.initMouseEvent(
+					"click",
+					true /* bubble */, true /* cancelable */,
+					window, null,
+					m.pageX, m.pageY, m.pageX, m.pageY, /* coordinates */
+					false, false, false, false, /* modifier keys */
+					0 /*left*/, null
+					);
+					el.dispatchEvent(ev);
+				}
+			}
+
+		}); 
+	},tWait);
+}
+function multiSelect() {
+	setTimeout( function () {
+		var isdown;
+		var isdowns;
+		var isdownx;
+		var isclass;
+		// $("#rc-imageselect-target td").bind("mouseenter mouseleave mouseover mouseout mousedown mouseup", function (m) {
+		$("#rc-imageselect-target td").bind("mouseleave mouseover mouseout mousedown mouseup", function (m) {
+
+			if (m.type == "mousedown" && m.button == 0) {
+				isdown = 1;
+				isdowns = 0;
+				isdownx = 0;
+				isclass = ($(this).filter(':not([class]),[class=""]').length > 0);
+			}
+			if (m.type == "mouseup" && m.button == 0) {
+				isdown = 0;
+			}
+
+			if (isclass == ($(this).filter(':not([class]),[class=""]').length > 0) && (m.type == "mouseout" || m.type == "mouseleave") && m.button == 0 && isdown == 1) {
+				isdowns = 1;
+				$(this).find("img").click();
+			}
+			if (isclass == ($(this).filter(':not([class]),[class=""]').length > 0) && (m.type == "mouseover" || m.type == "mouseenter") && m.button == 0 && isdown == 1) {
+				isdowns = 1;
+				$(this).find("img").click();
+			}
+
+			if (m.type == "mousedown" && m.button == 0 && isdowns == 0) {
+				$(this).filter(':not([class=""])').find("img").click();
+			}
+
+			if (m.type == "mouseleave" && m.button == 0 && isdown == 1) {
+				isdownx = 1;
+			}
+
+			if (m.type == "mouseup" && m.button == 0 && isdownx == 0 && isdown == 0) {
+				$(this).filter(':not([class=""])').find("img").click();
+				isdownx = 1;
+			}
+
+		});
+	},tWait);
+}
+function multiSelectDynamic() {
+	setTimeout( function () {
+		var isdown;
+		var isclass;
+		//        $("#rc-imageselect-target td").bind("mouseenter mouseover mouseout mousedown mouseup", function (m) {
+		$("#rc-imageselect-target td").bind("mouseover mouseout mousedown mouseup", function (m) {
+
+			if (m.type == "mousedown" && m.button == 0) {
+				isdown = 1;
+			}
+			if (m.type == "mouseup" && m.button == 0) {
+				isdown = 0;
+				$("#rc-imageselect-target td").filter('[class=""]').removeAttr('class');
+			}
+			if (m.type == "mouseover" && m.button == 0 && isdown == 1) {
+				$(this).filter(':not([class=""])').find("img").click();
+			}
+			if (m.type == "mouseout" && m.button == 0 && isdown == 1) {
+				$(this).filter(':not([class=""])').find("img").click();
+			}
+		});
+
+	},tWait);
+}
+var script = document.createElement('script');
+//    script.text = '(function(){if("undefined"!==typeof CustomEvent&&"function"===typeof window.dispatchEvent)"undefined"!==typeof XMLHttpRequest&&XMLHttpRequest.prototype&&XMLHttpRequest.prototype.send&&(XMLHttpRequest.prototype.send=function(c){return function(f){var d=this;d.addEventListener("loadend",function(event){function replaceAll(str,find,replace){return str.replace(new RegExp(find,"g"),replace)}var response=JSON.parse(replaceAll(replaceAll(d.responseText.replace(")]}\'",""),",,",\',"",\'),",,",\',"",\'));window.postMessage({type:"loadend", responseText:response},"*")});return c.apply(d,arguments)}}(XMLHttpRequest.prototype.send))})();';
+script.text = '(function(){if("undefined"!==typeof CustomEvent&&"function"===typeof window.dispatchEvent)"undefined"!==typeof XMLHttpRequest&&XMLHttpRequest.prototype&&XMLHttpRequest.prototype.send&&(XMLHttpRequest.prototype.send=function(c){return function(f){var d=this;d.addEventListener("loadend",function(event){function replaceAll(str,find,replace){return str.replace(new RegExp(find,"g"),replace)}  if (d.responseType !== "blob") {  var response=JSON.parse(replaceAll(replaceAll(d.responseText.replace(")]}\'",""),",,",\',"",\'),",,",\',"",\'));window.postMessage({type:"loadend", responseText:response},"*")}});return c.apply(d,arguments)}}(XMLHttpRequest.prototype.send))})();';
+script.type = 'text/javascript';
+document.body.appendChild(script);
+window.addEventListener("message", function (event) {
+	var event = event.data;
+	var responseText = [];
+	if (event.type && (event.type == "loadend") && (event.responseText[0] == "rresp")) {
+		responseText = event.responseText;
+	}
+	if (event.type && (event.type == "loadend") && (event.responseText[0] == "dresp")) {
+		responseText = event.responseText;
+	}
+	if (event.type && (event.type == "loadend") && (event.responseText[0] == "uvresp") && ((typeof event.responseText[7] !== "undefined") && event.responseText[7][0] == "rresp")) {
+		responseText = event.responseText[7];
+	}
+	if (responseText[0] == "dresp" ) {
+		if (typeof(responseText[2][0])  == "undefined" ||
+				((typeof(responseText[2][0]) !== "undefined") &&
+					(typeof(responseText[4][0]) !== "undefined"))) {
+			responseText[5] = "multicaptcha";
+		}
+	}
+	if (typeof responseText[5] !== "undefined") {
+		if (responseText[5] == "dynamic") {
+			multiSelectDynamic();
+		}
+		if (responseText[5] == "imageselect") {
+			multiSelect();
+		}
+		if (responseText[5] == "tileselect") {
+			multiSelect();
+		}
+		if (responseText[5] == "canvas") {
+			canvasAutoClick();
+		}
+		if (responseText[5] == "multicaptcha") {
+			multiSelect();    
+		}
+		window.addEventListener("mouseover", hwin_mOver, false);
+		function hwin_mOver(ev) {
+			window.removeEventListener("mouseover", hwin_mOver, false);
+			ev.stopImmediatePropagation();
+			window.focus();
+			window.addEventListener("mousedown", function (ev) {
+				ev.stopImmediatePropagation();
+				if ( ev.button == 2 ) {
+					verifyClick();
+				}
+			}, false);
+		}
+		window.addEventListener("contextmenu", function (ev) {
+			ev.preventDefault();
+		},false);
+	}
+});
